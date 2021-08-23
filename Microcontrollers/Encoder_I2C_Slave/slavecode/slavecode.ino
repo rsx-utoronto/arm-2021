@@ -1,6 +1,9 @@
 // Rotary Encoder Inputs
 #define CLK 3
 #define DT 2
+#include <Wire.h>
+
+byte i2c_rcv;                  // data received from I2C bus
 
 int counter = 0;
 int currentStateCLK;
@@ -16,6 +19,7 @@ long start_time;
 
 void setup() {
   Wire.begin(8);                // join i2c bus with address #8
+  Wire.onReceive(dataRcv);             //even handler for received data
   Wire.onRequest(requestEvent); // register event
   
   // Set encoder pins as inputs
@@ -127,8 +131,14 @@ void updateEncoder(){
   }
   // Remember last CLK state
   lastStateCLK = currentStateCLK;
+}
 
-  void requestEvent() {
-    Wire.write("hello "); // respond with message of 6 bytes
+void dataRcv(int numBytes) {
+  while(Wire.available()) {            // read all bytes received
+    i2c_rcv = Write.read();
   }
+}
+
+void requestEvent() {
+    Wire.write("hello "); // respond with message of 6 bytes
 }
