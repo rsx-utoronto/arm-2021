@@ -1,8 +1,9 @@
 #include <Wire.h>
 
 int motor_speed;
-char *motor_direction;
+char motor_direction;
 long start_time;
+char c;
 
 void setup() {
   Wire.begin();        // join i2c bus (address optional for master)
@@ -24,8 +25,8 @@ void loop() {
     if(Serial.available()){
       String command = Serial.readString();
       //motor_direction = command.c_str();
-      motor_direction = strtok(command.c_str(), " ");
-      //Serial.println(motor_direction);
+      motor_direction = command.c_str()[0];
+      Serial.println(motor_direction);
     }
     
     Wire.beginTransmission(8); //starts transmission, uses slave's address
@@ -35,8 +36,8 @@ void loop() {
     Wire.requestFrom(8, 1);    // request 1 byte from slave device #8
 
     while (Wire.available()) { // slave may send less than requested
-      motor_direction = Wire.read(); // receive a byte as character (a or b)
-      Serial.print(motor_direction);         // print the character
+      c = Wire.read(); // receive a byte as character (a or b)
+      Serial.println(c);         // print the character
     }
   }
   

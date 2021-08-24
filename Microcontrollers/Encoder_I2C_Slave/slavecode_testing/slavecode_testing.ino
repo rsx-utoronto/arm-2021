@@ -13,11 +13,9 @@ String currentDir ="";
 int motor_en = 9;
 int motor_pin1 = 8;
 int motor_pin2 = 7;
-char *motor_direction = 'x';
+char motor_direction = 'x';
 
 long start_time;
-
-
 
 void setup() {
   
@@ -46,11 +44,11 @@ void setup() {
 void loop() {
 
   // with master's info, set the motor direction a or b (cw or ccw)
-  if (!strcmp(motor_direction, "a")) {
+  if (motor_direction == 'a') {
       digitalWrite(motor_pin1, HIGH);
       digitalWrite(motor_pin2, LOW);
   }
-  else if (!strcmp(motor_direction, "b")) {
+  else if (motor_direction == 'b') {
       digitalWrite(motor_pin1, LOW);
       digitalWrite(motor_pin2, HIGH);
   }
@@ -69,10 +67,7 @@ void loop() {
   else {
     motor_direction = 'x';
   }
-
-
-
-
+  
 }
 
 void updateEncoder(){
@@ -100,8 +95,10 @@ void updateEncoder(){
 
 void dataRcv(int numBytes) {
   while(Wire.available()) {            // read all bytes received
-    i2c_rcv = Wire.read();
+    motor_direction = Wire.read();
+    Serial.println(motor_direction);
   }
+  Serial.println("Hello");
 }
 
 void requestEvent() {
