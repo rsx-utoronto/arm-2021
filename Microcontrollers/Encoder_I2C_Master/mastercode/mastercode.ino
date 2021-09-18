@@ -30,10 +30,13 @@ void loop() {
     }
     
     Wire.beginTransmission(8); //starts transmission, uses slave's address
-    Wire.write(motor_direction); //asks for data from slave
+    Wire.write(motor_speed); //asks for data from slave
     Wire.endTransmission(); 
     
     Wire.requestFrom(8, 1);    // request 1 byte from slave device #8
+    if (Wire.available()) {
+      motor_speed = Wire.read();
+    }
 
     while (Wire.available()) { // slave may send less than requested
       c = Wire.read(); // receive a byte as character (a or b)

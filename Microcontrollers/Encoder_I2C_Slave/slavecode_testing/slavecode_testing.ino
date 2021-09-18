@@ -21,7 +21,7 @@ void setup() {
   
   Wire.begin(8);                // join i2c bus with address #8
   Wire.onReceive(dataRcv);             //even handler for received data
-  Wire.onRequest(requestEvent); // register event
+  Wire.onRequest(dataReq);      // register event
   
   // Set encoder pins as inputs
   pinMode(CLK,INPUT_PULLUP);
@@ -43,31 +43,9 @@ void setup() {
 
 void loop() {
 
-  // with master's info, set the motor direction a or b (cw or ccw)
-  if (motor_direction == 'a') {
-      digitalWrite(motor_pin1, HIGH);
-      digitalWrite(motor_pin2, LOW);
-  }
-  else if (motor_direction == 'b') {
-      digitalWrite(motor_pin1, LOW);
-      digitalWrite(motor_pin2, HIGH);
-  }
-  else {
-      digitalWrite(motor_pin1, LOW);
-      digitalWrite(motor_pin2, LOW);
-  }
+  updateEncoder();
+  Wire.onRequest(dataReq);
 
-  // report back to master which direction the motor is spinning
-  if (motor_pin1 == HIGH && motor_pin2 == LOW) {  // clockwise
-    motor_direction = 'a';
-  } 
-  else if (motor_pin1 == LOW && motor_pin2 == HIGH) { // counterclockwise
-    motor_direction = 'b';
-  }
-  else {
-    motor_direction = 'x';
-  }
-  
 }
 
 void updateEncoder(){
@@ -82,15 +60,14 @@ void updateEncoder(){
     // the encoder is rotating CCW so decrement
     if (digitalRead(DT) != currentStateCLK) {
       counter --;
-      currentDir ="CCW";
     } else {
       // Encoder is rotating CW so increment
       counter ++;
-      currentDir ="CW";
     }
   }
   // Remember last CLK state
   lastStateCLK = currentStateCLK;
+  
 }
 
 void dataRcv(int numBytes) {
@@ -101,6 +78,6 @@ void dataRcv(int numBytes) {
   Serial.println("Hello");
 }
 
-void requestEvent() {
-    Wire.write(motor_direction); // respond with message of 1 byte (a or b for cw/ccw)
+void dataReq() {
+    Wire.write(counter); // respond with the counter from updateEncoder
 }
