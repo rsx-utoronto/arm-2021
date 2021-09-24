@@ -1,6 +1,6 @@
 #include <Wire.h>
 
-int motor_speed;
+int motor_position;
 char motor_direction;
 long start_time;
 char c;
@@ -11,7 +11,7 @@ void setup() {
 
   start_time = millis();
 
-  motor_speed = 0;
+  motor_position = 0;
 }
 
 void loop() {
@@ -30,12 +30,12 @@ void loop() {
     }
     
     Wire.beginTransmission(8); //starts transmission, uses slave's address
-    Wire.write(motor_speed); //asks for data from slave
+    Wire.write(motor_position); //asks for data from slave
     Wire.endTransmission(); 
     
     Wire.requestFrom(8, 1);    // request 1 byte from slave device #8
     if (Wire.available()) {
-      motor_speed = Wire.read();
+      motor_position = Wire.read();
     }
 
     while (Wire.available()) { // slave may send less than requested

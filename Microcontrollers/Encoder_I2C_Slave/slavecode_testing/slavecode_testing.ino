@@ -20,7 +20,7 @@ long start_time;
 void setup() {
   
   Wire.begin(8);                // join i2c bus with address #8
-  Wire.onReceive(dataRcv);             //even handler for received data
+
   Wire.onRequest(dataReq);      // register event
   
   // Set encoder pins as inputs
@@ -70,13 +70,6 @@ void updateEncoder(){
   
 }
 
-void dataRcv(int numBytes) {
-  while(Wire.available()) {            // read all bytes received
-    motor_direction = Wire.read();
-    Serial.println(motor_direction);
-  }
-  Serial.println("Hello");
-}
 
 void dataReq() {
     Wire.write(counter); // respond with the counter from updateEncoder
