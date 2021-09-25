@@ -1,9 +1,10 @@
-#include <Wire.h>
 
-int motor_position;
+int motor_speed;
 char motor_direction;
 long start_time;
 char c;
+long counter = 0;
+byte storage[4];
 
 void setup() {
   Wire.begin();        // join i2c bus (address optional for master)
@@ -11,7 +12,11 @@ void setup() {
 
   start_time = millis();
 
-  motor_position = 0;
+  motor_speed = 0;
+  // Powering motor
+  pinMode(motor_en, OUTPUT);
+  pinMode(motor_pin1, OUTPUT);
+  pinMode(motor_pin2, OUTPUT);
 }
 
 void loop() {
@@ -21,27 +26,56 @@ void loop() {
     start_time = cur_time;
 
     // asks user for the motor direction via serial
-    Serial.println("Type motor direction (a/b/n) and speed (0 to 255):");
-    if(Serial.available()){
-      String command = Serial.readString();
-      //motor_direction = command.c_str();
-      motor_direction = command.c_str()[0];
-      Serial.println(motor_direction);
-    }
+    Serial.println("Type speed (0 to 255):");
+  
     
-    Wire.beginTransmission(8); //starts transmission, uses slave's address
-    Wire.write(motor_position); //asks for data from slave
-    Wire.endTransmission(); 
-    
-    Wire.requestFrom(8, 1);    // request 1 byte from slave device #8
     if (Wire.available()) {
-      motor_position = Wire.read();
+     for (int i = 0; i < 4; i++) {
+      storage[i] = Wire.read();
+     }
+     counter = (long)(storage[3] << 24) | (storage[2] << 16) | (storage[1] << 8) | storage[0];
+    }
+    else {
+      Wire.requestFrom(8, 4);    // request 4 byte from slave device #8
     }
 
-    while (Wire.available()) { // slave may send less than requested
-      c = Wire.read(); // receive a byte as character (a or b)
-      Serial.println(c);         // print the character
+   Serial.println(counter);
+
+   if(Serial.available()){
+    String command = Serial.readString();
+    char *motor_direction = strtok(command.c_str(), " ");
+    //Serial.println(motor_direction);
+    int motor_speed = atoi(strtok(NULL, " "));
+    //Serial.println(motor_speed);
+
+    if (!strcmp(motor_direction, "ccw")) {
+      Serial.print("Motor turning ccw at ");
+      Serial.println(motor_speed);
+      digitalWrite(motor_pin1, LOW);
+      digitalWrite(motor_pin2, HIGH);
+      analogWrite(motor_en, motor_speed);
+    } 
+    else if (!strcmp(motor_direction, "cw")) {
+      Serial.print("Motor turning cw at ");
+      Serial.println(motor_speed);
+      digitalWrite(motor_pin1, HIGH);
+      digitalWrite(motor_pin2, LOW);
+      analogWrite(motor_en, motor_speed);
+    } 
+    else if (!strcmp(motor_direction, "off")) {
+      Serial.println("Motor shutting down...");
+      digitalWrite(motor_pin1, LOW);
+      digitalWrite(motor_pin2, LOW);
     }
+    else {
+      Serial.println("Invalid direction");
+    }
+    /*Serial.print("Direction: ");
+    Serial.print(currentDir);
+    Serial.print(" | Counter: ");
+    Serial.println(counter);
+    */
+    Serial.println("Type motor direction (a/b/n) and speed (0 to 255):");
   }
   
 

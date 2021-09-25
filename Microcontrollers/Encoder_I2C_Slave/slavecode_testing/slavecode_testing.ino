@@ -5,7 +5,7 @@
 
 byte i2c_rcv;                  // data received from I2C bus
 
-int counter = 0;
+long counter = 0;
 int currentStateCLK;
 int lastStateCLK;
 String currentDir ="";
