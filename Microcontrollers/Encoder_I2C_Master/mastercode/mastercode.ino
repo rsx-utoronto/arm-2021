@@ -1,3 +1,4 @@
+#include <Wire.h>
 
 int motor_speed;
 char motor_direction;
@@ -5,6 +6,10 @@ long start_time;
 char c;
 long counter = 0;
 byte storage[4];
+
+int motor_en = 9;
+int motor_pin1 = 8;
+int motor_pin2 = 7;
 
 void setup() {
   Wire.begin();        // join i2c bus (address optional for master)
@@ -17,10 +22,11 @@ void setup() {
   pinMode(motor_en, OUTPUT);
   pinMode(motor_pin1, OUTPUT);
   pinMode(motor_pin2, OUTPUT);
+  digitalWrite(motor_en, HIGH);
 }
 
 void loop() {
-
+ 
   long cur_time = millis();
   if (cur_time >= start_time + 1000) {
     start_time = cur_time;
@@ -38,8 +44,9 @@ void loop() {
     else {
       Wire.requestFrom(8, 4);    // request 4 byte from slave device #8
     }
-
+  
    Serial.println(counter);
+   
 
    if(Serial.available()){
     String command = Serial.readString();
@@ -75,11 +82,11 @@ void loop() {
     Serial.print(" | Counter: ");
     Serial.println(counter);
     */
-    Serial.println("Type motor direction (a/b/n) and speed (0 to 255):");
+    //Serial.println("Type motor direction (a/b/n) and speed (0 to 255):");
   }
   
 
-  
+  }
   
 
 
